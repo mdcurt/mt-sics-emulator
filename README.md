@@ -135,6 +135,39 @@ asyncio.run(main())
 
 ---
 
+---
+ 
+## HTTP control API
+ 
+The control API is a second, optional HTTP port that exposes the simulator: the "physical world" interface for tests, scripts, and GUIs.
+ 
+```bash
+mtsics-tcp --port 8000 --control-port 8001
+```
+ 
+| Endpoint | Description |
+|---|---|
+| `GET /state` | Full scale state: gross, net, tare, stability, ranges, target, profile info |
+| `POST /weight` | `{"target": 12.5}` settles naturally; `{"value": 12.5, "snap": true}` jumps immediately |
+| `POST /reset` | Clears tare and zero offset, returns platform to 0 |
+ 
+```bash
+# Place 12.5 kg on the platform (settles over ~2 s)
+curl -X POST localhost:8001/weight -d '{"target": 12.5}'
+ 
+# Jump straight to 5 kg, no settling
+curl -X POST localhost:8001/weight -d '{"value": 5.0, "snap": true}'
+ 
+# Read everything
+curl localhost:8001/state
+```
+ 
+The control API binds to loopback (`127.0.0.1`) only and is disabled unless `--control-port` is given. It has zero dependencies — implemented directly on asyncio.
+ 
+A typical integration test: start the emulator, `POST /weight` to simulate a parcel landing on the scale, then assert your application under test reads the correct weight through its normal MT-SICS connection.
+ 
+---
+
 ## Supported MT-SICS commands
 
 | Command | Description | Response |
@@ -213,6 +246,7 @@ src/mtsics/
 ├── transport/
 │   ├── tcp.py           # TCPTransport — asyncio server, multi-client, SIR streaming
 │   └── serial.py        # SerialTransport — pyserial thread bridge
+│   └── control.py       # ControlAPI — HTTP control plane (dependency-free)
 └── cli.py               # Interactive REPL
 
 tests/
@@ -221,6 +255,7 @@ tests/
 ├── test_simulator.py    # Physics / stability tests
 ├── test_tcp.py          # Network integration tests
 └── test_serial.py       # Serial transport tests (mock-based)
+└── test_control.py      # HTTP control API tests
 ```
 
 ---

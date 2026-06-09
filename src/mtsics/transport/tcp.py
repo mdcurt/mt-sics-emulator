@@ -1,8 +1,8 @@
 """
 TCP transport for the MT-SICS emulator.
 
-Exposes the MT-SICS engine over a raw TCP socket, matching how a scale behaves
-when configured for Ethernet or WiFi connectivity. Multiple
+Exposes the MT-SICS engine over a raw TCP socket, matching how the Defender
+5000 behaves when configured for Ethernet or WiFi connectivity. Multiple
 clients can connect simultaneously; each gets its own SIR streaming state
 while sharing the same scale state.
 
@@ -332,7 +332,9 @@ class TCPTransport:
 # CLI entry point
 # ---------------------------------------------------------------------------
 
-async def _async_main(host: str, port: int, profile: str) -> None:
+async def _async_main(
+    host: str, port: int, profile: str, control_port: int | None
+) -> None:
     from mtsics.core.simulator import SimConfig
     from mtsics.core.state import ScaleState
     from mtsics.profiles import load
@@ -351,12 +353,24 @@ async def _async_main(host: str, port: int, profile: str) -> None:
     print(f"  S/N:        {state.config.serial_number}")
     print(f"  Capacity:   {state.config.capacity} {state.config.unit}")
     print(f"  Graduation: {state.config.graduation} {state.config.unit}")
+
+    control = None
+    if control_port is not None:
+        from mtsics.transport.control import ControlAPI, ControlConfig
+        control = ControlAPI(state, sim, cfg=ControlConfig(port=control_port))
+        ch, cp = await control.start()
+        print(f"  Control:    http://{ch}:{cp}  "
+              f"(GET /state, POST /weight, POST /reset)")
+
     print("Press Ctrl+C to stop.\n")
 
     try:
         await transport.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        if control is not None:
+            await control.close()
 
 
 def main() -> None:
@@ -375,13 +389,19 @@ def main() -> None:
         "--list-profiles", action="store_true",
         help="Print available scale profiles and exit.",
     )
+    p.add_argument(
+        "--control-port", type=int, default=None, metavar="PORT",
+        help="Enable the HTTP control API on this port (e.g. 8001). "
+             "Exposes GET /state, POST /weight, POST /reset on loopback. "
+             "Disabled by default.",
+    )
     args = p.parse_args()
 
     if args.list_profiles:
         print(summary_table())
         return
 
-    asyncio.run(_async_main(args.host, args.port, args.profile))
+    asyncio.run(_async_main(args.host, args.port, args.profile, args.control_port))
 
 
 if __name__ == "__main__":
