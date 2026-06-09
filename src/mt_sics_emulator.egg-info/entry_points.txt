@@ -1,0 +1,4 @@
+[console_scripts]
+mtsics = mtsics.cli:main
+mtsics-serial = mtsics.transport.serial:main
+mtsics-tcp = mtsics.transport.tcp:main
