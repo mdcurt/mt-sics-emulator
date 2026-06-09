@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mt-sics-emulator"
+version = "0.1.0"
+description = "Software emulator for MT-SICS compatible industrial scales (Ohaus, Mettler Toledo, Sartorius)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+keywords = ["mt-sics", "scale", "emulator", "ohaus", "mettler-toledo", "sartorius", "weighing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+dev    = ["pytest>=8.0", "pytest-asyncio>=0.23", "pyserial>=3.5"]
+
+[project.urls]
+Homepage = "https://github.com/mdcurt/mt-sics-emulator"
+Issues   = "https://github.com/mdcurt/mt-sics-emulator/issues"
+
+[project.scripts]
+mtsics        = "mtsics.cli:main"
+mtsics-tcp    = "mtsics.transport.tcp:main"
+mtsics-serial = "mtsics.transport.serial:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath   = ["src"]
