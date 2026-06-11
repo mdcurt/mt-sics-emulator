@@ -8,6 +8,7 @@ src/mt_sics_emulator.egg-info/entry_points.txt
 src/mt_sics_emulator.egg-info/requires.txt
 src/mt_sics_emulator.egg-info/top_level.txt
 src/mtsics/__init__.py
+src/mtsics/cli.py
 src/mtsics/profiles.py
 src/mtsics/core/__init__.py
 src/mtsics/core/simulator.py
@@ -15,5 +16,11 @@ src/mtsics/core/state.py
 src/mtsics/protocol/__init__.py
 src/mtsics/protocol/engine.py
 src/mtsics/transport/__init__.py
+src/mtsics/transport/control.py
 src/mtsics/transport/serial.py
 src/mtsics/transport/tcp.py
+tests/test_engine.py
+tests/test_profiles.py
+tests/test_serial.py
+tests/test_simulator.py
+tests/test_tcp.py
