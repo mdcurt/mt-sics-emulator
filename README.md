@@ -1,5 +1,8 @@
 # MT-SICS-Emulator
 
+[![PyPI version](https://img.shields.io/pypi/v/mt-sics-emulator)](https://pypi.org/project/mt-sics-emulator/)
+[![Python 3.11+](https://img.shields.io/pypi/pyversions/mt-sics-emulator)](https://pypi.org/project/mt-sics-emulator/)
+
 The first open-source server-side implementation of the **MT-SICS** (Mettler Toledo Standard Interface Command Set) protocol. Emulates major industrial bench scales over TCP and RS-232 so client applications (WMS integrations, label printers, custom scripts, etc) can be developed and tested without physical hardware.
 
 ---
